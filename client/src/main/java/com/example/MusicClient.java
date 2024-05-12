@@ -7,10 +7,10 @@ import MusicServer.MusicManagerPrx;
 import MusicServer.MusicNotFoundError;
 
 
-import uk.co.caprica.vlcj.factory.MediaPlayerFactory;
-import uk.co.caprica.vlcj.player.component.AudioPlayerComponent;
-import uk.co.caprica.vlcj.player.component.EmbeddedMediaPlayerComponent;
-import uk.co.caprica.vlcj.player.embedded.EmbeddedMediaPlayer;
+// import uk.co.caprica.vlcj.factory.MediaPlayerFactory;
+// import uk.co.caprica.vlcj.player.component.AudioPlayerComponent;
+// import uk.co.caprica.vlcj.player.component.EmbeddedMediaPlayerComponent;
+// import uk.co.caprica.vlcj.player.embedded.EmbeddedMediaPlayer;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -26,11 +26,11 @@ public class MusicClient {
 
     private Scanner scanner;
     private MusicManagerPrx musicManager;
-    private AudioPlayerComponent audioPlayer;
+    // private AudioPlayerComponent audioPlayer;
 
     public MusicClient(Communicator communicator) {
-        audioPlayer = new AudioPlayerComponent();
-        musicManager = MusicManagerPrx.checkedCast(communicator.stringToProxy("MusicManager:default -p 10000"));
+        // audioPlayer = new AudioPlayerComponent();
+        musicManager = MusicManagerPrx.checkedCast(communicator.stringToProxy("MusicManager:default -h 192.168.0.19 -p 10000"));
         if (musicManager == null) {
             throw new RuntimeException("Invalid proxy");
         }
@@ -212,37 +212,38 @@ public class MusicClient {
     public void playMusic(String title, String artist) {
         try {
             byte[] data = musicManager.playMusic(title, artist);
-            File tempFile = File.createTempFile("music-", ".mp3");
-            tempFile.deleteOnExit();
-            FileOutputStream outputStream = new FileOutputStream(tempFile);
-            outputStream.write(data);
+        //     File tempFile = File.createTempFile("music-", ".mp3");
+        //     tempFile.deleteOnExit();
+        //     FileOutputStream outputStream = new FileOutputStream(tempFile);
+        //     outputStream.write(data);
 
             
-            audioPlayer.mediaPlayer().media().play(tempFile.getAbsolutePath());
+        //     audioPlayer.mediaPlayer().media().play(tempFile.getAbsolutePath());
             System.out.println("En train de jouer '" + title + "' par " + artist);
         } catch (MusicServer.MusicNotFoundError e) {
             System.out.println("La musique n'a pas été trouvée.");
-        } catch (IOException e) {
-            System.out.println("Erreur : " + e.getMessage());
+        // } catch (IOException e) {
+        //     System.out.println("Erreur : " + e.getMessage());
         }
     }
 
     private boolean isPaused = false;
     
     public void pauseMusic() {
-        audioPlayer.mediaPlayer().controls().pause();
-        if (!isPaused) {
-            isPaused = true;
-            System.out.println("Musique en pause");
-        } else {
-            isPaused = false;
-            System.out.println("Musique reprise");
-        }
+        musicManager.pauseMusic();
+        // audioPlayer.mediaPlayer().controls().pause();
+        // if (!isPaused) {
+        //     isPaused = true;
+        //     System.out.println("Musique en pause");
+        // } else {
+        //     isPaused = false;
+        //     System.out.println("Musique reprise");
+        // }
     }
     
     public void stopMusic() {
-        audioPlayer.mediaPlayer().controls().stop();
-        System.out.println("Musique arrêtée");
+        // audioPlayer.mediaPlayer().controls().stop();
+        // System.out.println("Musique arrêtée");
     }
 
 }

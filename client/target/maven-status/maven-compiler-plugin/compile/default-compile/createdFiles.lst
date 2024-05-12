@@ -1,8 +1,8 @@
 MusicServer/_MusicManagerPrxI.class
 MusicServer/MusicInfo.class
 MusicServer/seqMusicInfoHelper.class
-MusicServer/MusicNotFoundError.class
 com/example/MusicClient.class
+MusicServer/MusicNotFoundError.class
 MusicServer/MusicManagerPrx.class
 MusicServer/MusicManager.class
 MusicServer/MusicManager$1.class

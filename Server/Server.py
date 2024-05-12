@@ -1,11 +1,12 @@
-import Ice, os, uuid, MusicServer, sqlite3
+import Ice, os, uuid, MusicServer, sqlite3, vlc, time
 from MusicServer import MusicNotFoundError
- 
  
 class MusicManagerI(MusicServer.MusicManager):
     def __init__(self):
-        self.music_dir = "/home/ange/Documents/Cours/M1S2/Middleware/SOUP/Server/music/"
-        self.db_dir = "/home/ange/Documents/Cours/M1S2/Middleware/SOUP/Server/music.db"
+        self.instance = vlc.Instance(['--rtsp-host=192.168.0.19'])
+        self.player = self.instance.media_player_new()
+        self.music_dir = "music/"
+        self.db_dir = "music.db"
 
     def listAllMusic(self, current=None):
         conn = sqlite3.connect(self.db_dir)
@@ -79,17 +80,29 @@ class MusicManagerI(MusicServer.MusicManager):
         file_name = result[0]
         conn.close()
 
-        with open(self.music_dir + file_name, "rb") as f:
-            data = f.read()
-        return data
+        # Créez un objet MediaPlayer pour lire le fichier audio
+        self.player.stop()
 
+        # Create a new media and set it to the player
+        media = self.instance.media_new_path("music/" + file_name)
+        url = f"rtsp://:554/stream"
+        options = f":sout=#transcode{{acodec=mpga,ab=128,channels=2,samplerate=44100}}:rtp{{mux=ts,sdp={url}}}"
+        media.add_option(options)
+        self.player.set_media(media)
+
+        # Play the new media
+        self.player.play()
+        print("aaa")
+
+    def pauseMusic(self, current=None):
+        self.player.pause()
 
 props = Ice.createProperties()
 props.setProperty("Ice.MessageSizeMax", "0")
 initData = Ice.InitializationData()
 initData.properties = props
 with Ice.initialize(initData) as communicator:
-    conn = sqlite3.connect("/home/ange/Documents/Cours/M1S2/Middleware/SOUP/Server/music.db")
+    conn = sqlite3.connect("music.db")
     cursor = conn.cursor()
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS music (
@@ -102,7 +115,7 @@ with Ice.initialize(initData) as communicator:
     conn.commit()
     conn.close()
 
-    adapter = communicator.createObjectAdapterWithEndpoints("MusicAdapter", "default -p 10000")
+    adapter = communicator.createObjectAdapterWithEndpoints("MusicAdapter", "default -h 192.168.0.19 -p 10000")
     object = MusicManagerI()
     adapter.add(object, communicator.stringToIdentity("MusicManager"))
     adapter.activate()

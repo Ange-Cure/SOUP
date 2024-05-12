@@ -16,5 +16,6 @@ module MusicServer {
         void deleteMusic(string title, string artist) throws MusicNotFoundError;
         void updateMusic(string title, string artist, string newTitle, string newArtist);
         Bytes playMusic(string title, string artist) throws MusicNotFoundError;
+        void pauseMusic();
     }
 }

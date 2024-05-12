@@ -6,5 +6,6 @@ Ice.updateModule("MusicServer")
 
 # Modules:
 import MusicManager_ice
+import MusicManager_ice
 
 # Submodules:
